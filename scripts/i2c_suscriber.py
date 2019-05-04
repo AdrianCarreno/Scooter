@@ -3,7 +3,7 @@ import rospy
 from scooter.msg import i2c
 import smbus
 
-BUS = smbus.SMBus(0)
+BUS = smbus.SMBus(1)
 
 def callback(data):
     BUS.write_byte(data.throttle_addr, data.throttle_val)
