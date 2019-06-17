@@ -1,4 +1,4 @@
 int8 throttle_addr
-int8 throttle_val
+int8 throttle
 int8 direction_addr
-int8 direction_val
+int8 direction

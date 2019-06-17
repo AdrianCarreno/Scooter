@@ -52,6 +52,7 @@ find_package(catkin REQUIRED COMPONENTS
    FILES
    i2c.msg
    spi.msg
+   target.msg
  )
 
 ## Generate services in the 'srv' folder
