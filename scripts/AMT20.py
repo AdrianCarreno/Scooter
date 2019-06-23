@@ -2,11 +2,9 @@
 # and create a SPI object with
 # enc = spidev.SpiDev()
 
-
 nop_a5 = 0x00
 rd_pos = 0x10
 set_zero_point = 0x70
-
 
 # This command causes a read of the current position.
 def read_position(enc):
@@ -17,8 +15,8 @@ def read_position(enc):
 
     MSB = enc.xfer([nop_a5], 0, 20)[0]  # Most Significant Byte
     LSB = enc.xfer([nop_a5], 0, 20)[0]  # Least Significant Byte
-    return (MSB << 8) | LSB
 
+    return (MSB << 8) | LSB
 
 # This command sets the current position to zero and saves this setting in the EEPROM.
 def set_zero(enc):

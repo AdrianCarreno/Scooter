@@ -6,10 +6,14 @@ import smbus
 BUS = smbus.SMBus(1)
 
 def callback(data):
-    BUS.write_byte(data.throttle_addr, data.throttle)
-    BUS.write_byte(data.direction_addr, data.direction)
-    rospy.loginfo('Throttle addr: %s, throttle val: %s', str(data.throttle_addr), str(data.throttle))
-    rospy.loginfo('Direction addr: %s, direction val: %s', str(data.direction_addr), str(data.direction))    
+    try:
+        BUS.write_byte(data.throttle_addr, data.throttle)
+    except IOError:
+        rospy.logerr("Can't communicate with I2C device address %s", "0x{:02x}".format(data.throttle_addr))
+    try:
+        BUS.write_byte(data.direction_addr, data.direction)
+    except IOError:
+        rospy.logerr("Can't communicate with I2C device address %s", "0x{:02x}".format(data.direction_addr))
 
 def listener():
     rospy.init_node('driver', anonymous=True)

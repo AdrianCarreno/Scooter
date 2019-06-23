@@ -1,0 +1,6 @@
+<launch>
+    <node name="speed_input" pkg="scooter" type="controller.py" />
+    <node name="encoder_reader" pkg="scooter" type="spi_reader.py" />
+    <node name="driver" pkg="scooter" type="i2c_writer.py" />
+    <node name="actuation_output" pkg="scooter" type="controller.py" />
+</launch>

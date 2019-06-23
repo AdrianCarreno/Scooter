@@ -35,37 +35,24 @@ def getTargSpeed(target):
     targetV = target.vel
     targetD = target.dir
 
-def actuation_output():
+def controller():
+    rospy.init_node('controller', anonymous=True)
     pub = rospy.Publisher('actuation', i2c, queue_size=10)
-    rospy.init_node('i2c_talker', anonymous=True)
     rate = rospy.Rate(10)  # 10hz
+    rospy.Subscriber('console', target, getTargSpeed)
+    rospy.Subscriber('encoders', spi, getCurSpeed)
 
     while not rospy.is_shutdown():
         err = targetV - curV
         dataOut.throttle = int(numpy.clip(P * err, 0, 255))
         dataOut.direction = targetD
         pub.publish(dataOut)
-        rospy.loginfo('Throttle addr: %s, throttle val: %s', str(
-            dataOut.throttle_addr), str(dataOut.throttle))
-        rospy.loginfo('Direction addr: %s, direction val: %s', str(
-            dataOut.direction_addr), str(dataOut.direction))
+#         rospy.loginfo('Throttle addr: %s, throttle val: %s', str(dataOut.throttle_addr), str(dataOut.throttle))
+#         rospy.loginfo('Direction addr: %s, direction val: %s', str(dataOut.direction_addr), str(dataOut.direction))
         rate.sleep()
-
-def encoder_input():
-    rospy.init_node('speed_controller', anonymous=True)
-    rospy.Subscriber('encoders', spi, getCurSpeed)
-    rospy.spin()
-
-def console_input():
-    rospy.init_node('speed_controller', anonymous=True)
-    rospy.Subscriber('console', target, getTargSpeed)
-    rospy.spin()
-
 
 if __name__ == '__main__':
     try:
-        console_input()
-        encoder_input()
-        actuation_output()
+        controller()
     except rospy.ROSInterruptException:
         pass
