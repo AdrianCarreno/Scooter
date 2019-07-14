@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import rospy
-from scooter.msg import spi
+from scooter.msg import reading
 import spidev
 import time
 from AMT20 import read_position
@@ -14,10 +14,10 @@ enc2 = spidev.SpiDev()
 enc2.open(0, 1)
 enc2.max_speed_hz = 976000
 
-data = spi()
+data = reading()
 
 def talker():
-    pub = rospy.Publisher('encoders', spi, queue_size=10)
+    pub = rospy.Publisher('reading', reading, queue_size=10)
     rospy.init_node('encoder_reader', anonymous=True)
     rospy.on_shutdown(shutdown)
     rate = rospy.Rate(1000)  # 1000hz

@@ -51,7 +51,7 @@ find_package(catkin REQUIRED COMPONENTS
  add_message_files(
    FILES
    i2c.msg
-   spi.msg
+   reading.msg
    target.msg
  )
 
