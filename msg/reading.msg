@@ -1,3 +1,3 @@
-int16 enc1
-int16 enc2
-int8 pot
+float32 v_left
+float32 v_right
+float32 dir
