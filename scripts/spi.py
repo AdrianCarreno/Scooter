@@ -1,48 +1,61 @@
 #!/usr/bin/python
 
 import rospy
-from scooter.msg import raw_reading
-import spidev
-from AMT20 import read_position
+from scooter.msg import reading
+from AMT20 import AMT20
 
-ADDR_ENC1 = rospy.get_param('/spi/enc1/address')
-ADDR_ENC2 = rospy.get_param('/spi/enc2/address')
+class SPI:
+    def __init__(self):
+        self.ADDR_ENC1 = rospy.get_param('/spi/enc1/address')
+        self.ADDR_ENC2 = rospy.get_param('/spi/enc2/address')
+        self.data = reading()
+        
+        rospy.init_node('spi', anonymous=True)
+        rospy.on_shutdown(self.shutdown)
 
-enc1 = spidev.SpiDev()
-enc1.open(0, ADDR_ENC1)
-enc1.max_speed_hz = rospy.get_param('/spi/enc1/bitrate')
-
-enc2 = spidev.SpiDev()
-enc2.open(0, ADDR_ENC2)
-enc2.max_speed_hz = rospy.get_param('/spi/enc2/bitrate')
-
-data = raw_reading()
-
-def talker():
-    rospy.init_node('spi', anonymous=True)
-    pub = rospy.Publisher('raw_readings', raw_reading, queue_size=10)
-    rate = rospy.Rate(rospy.get_param('/readings/sampling_frequency'))
-    rospy.on_shutdown(shutdown)
-
-    while not rospy.is_shutdown():
+        # Check if encoders are conected and responding
         try:
-            data.enc1 = read_position(enc1)
+            self.enc1 = AMT20(self.ADDR_ENC1, rospy.get_param('/spi/enc1/direction'))
+            rospy.loginfo('Conected enc1 on address %s', str(self.ADDR_ENC1))
         except IOError:
-            rospy.logerr("Can't read data from SPI device address %s", str(ADDR_ENC1))
+            self.enc1 = None    # This is so shutdown() doesn't crash
+            self.enc2 = None
+            rospy.logerr("Can't open SPI device address %s", str(self.ADDR_ENC1))
+            rospy.signal_shutdown("Can't open SPI device address " + str(self.ADDR_ENC1))
         try:
-            data.enc2 = read_position(enc2)
+            self.enc2 = AMT20(self.ADDR_ENC2, rospy.get_param('/spi/enc2/direction'))
+            rospy.loginfo('Conected enc2 on address %s', str(self.ADDR_ENC2))
         except IOError:
-            rospy.logerr("Can't read data from SPI device address %s", str(ADDR_ENC2))
+            self.enc1 = None    # This is so shutdown() doesn't crash
+            self.enc2 = None
+            rospy.logerr("Can't open SPI device address %s", str(self.ADDR_ENC2))
+            rospy.signal_shutdown("Can't open SPI device address " + str(self.ADDR_ENC2))
 
-        pub.publish(data)
-        rate.sleep()
+    def run(self):
+        rate = rospy.Rate(rospy.get_param('/readings/sampling_frequency'))
+        pub = rospy.Publisher('readings', reading, queue_size=10)
+        rospy.loginfo('Publisher initialized correctly')
 
-def shutdown():
-    enc1.close()
-    enc2.close()
+        while not rospy.is_shutdown():
+            try:
+                self.data.w_left = self.enc1.angular_speed()
+            except IOError:
+                rospy.logerr("Can't read data from SPI device address %s", str(self.ADDR_ENC1))
+            try:
+                self.data.w_right = self.enc2.angular_speed()
+            except IOError:
+                rospy.logerr("Can't read data from SPI device address %s", str(self.ADDR_ENC2))
+
+            pub.publish(data)
+            rate.sleep()
+
+    def shutdown(self):
+        del self.enc1
+        del self.enc2
 
 if __name__ == '__main__':
     try:
-        talker()
+        spi_node = SPI()
+        spi_node.run()
     except rospy.ROSInterruptException:
         pass

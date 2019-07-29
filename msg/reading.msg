@@ -1,3 +1,3 @@
-float32 v_left
-float32 v_right
+float32 w_left
+float32 w_right
 float32 dir

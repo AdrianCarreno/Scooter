@@ -1,19 +1,14 @@
 <launch>
     <param name="/spi/enc1/address" value="0" />
-    <param name="/spi/enc1/direction" value="0" />
-    <param name="/spi/enc1/bitrate" value="976000" />
-    <param name="/spi/enc1/wheel" value="left" />
+    <param name="/spi/enc1/direction" value="ccw" />
     <param name="/spi/enc2/address" value="1" />
-    <param name="/spi/enc2/direction" value="1" />
-    <param name="/spi/enc2/bitrate" value="976000" />
-    <param name="/i2c/throttle/address" value="16" />
-    <param name="/i2c/direction/address" value="17" />
+    <param name="/spi/enc2/direction" value="cw" />
+    <param name="/i2c/address_throttle" value="16" />
+    <param name="/i2c/address_direction" value="17" />
     <param name="/readings/sampling_frequency" value="1000" />
     <param name="/actuation/write_frequency" value="10" />
     <param name="/radius" value="0.15" />
 
-    <node name="speed_input" pkg="scooter" type="controller.py" />
     <node name="spi" pkg="scooter" type="spi.py" />
     <node name="i2c" pkg="scooter" type="i2c.py" />
-    <node name="actuation_output" pkg="scooter" type="controller.py" />
 </launch>

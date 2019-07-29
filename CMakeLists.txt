@@ -50,10 +50,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
-  i2c.msg
-  raw_reading.msg
+  actuation.msg
   reading.msg
-  target.msg
 )
 
 ## Generate services in the 'srv' folder
