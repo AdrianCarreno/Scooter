@@ -16,13 +16,13 @@ class I2C:
 
         # Check if bus is respondig
         try:
-            self.BUS.read_byte(self.ADDR_THROTTLE)
+            self.BUS.write_byte(self.ADDR_THROTTLE, 0)
             rospy.loginfo('Conected to throttle device on address %s', "0x{:02x}".format(ADDR_THROTTLE))
         except IOError:
             rospy.logerr("Can't open I2C device address %s", "0x{:02x}".format(self.ADDR_THROTTLE))
             rospy.signal_shutdown("Can't open I2C device address " + "0x{:02x}".format(self.ADDR_THROTTLE))
         try:
-            self.BUS.read_byte(self.ADDR_DIR)
+            self.BUS.write_byte(self.ADDR_DIR, 0)
             rospy.loginfo('Conected to direction device on address %s', "0x{:02x}".format(ADDR_DIR))
         except IOError:
             rospy.logerr("Can't open I2C device address %s", "0x{:02x}".format(self.ADDR_DIR))
