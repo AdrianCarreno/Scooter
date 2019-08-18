@@ -8,7 +8,6 @@ class SPI:
     def __init__(self):
         self.ADDR_ENC1 = rospy.get_param('/spi/enc1/address')
         self.ADDR_ENC2 = rospy.get_param('/spi/enc2/address')
-        self.data = reading()
         
         rospy.init_node('spi', anonymous=True)
         rospy.on_shutdown(self.shutdown)
@@ -35,14 +34,15 @@ class SPI:
         rate = rospy.Rate(rospy.get_param('/readings/sampling_frequency'))
         pub = rospy.Publisher('readings', reading, queue_size=10)
         rospy.loginfo('Publisher initialized correctly')
+        data = reading()
 
         while not rospy.is_shutdown():
             try:
-                self.data.w_left = self.enc1.angular_speed()
+                data.w_left = self.enc1.angular_speed()
             except IOError:
                 rospy.logerr("Can't read data from SPI device address %s", str(self.ADDR_ENC1))
             try:
-                self.data.w_right = self.enc2.angular_speed()
+                data.w_right = self.enc2.angular_speed()
             except IOError:
                 rospy.logerr("Can't read data from SPI device address %s", str(self.ADDR_ENC2))
 
