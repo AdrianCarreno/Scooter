@@ -6,24 +6,24 @@ from AMT20 import AMT20
 
 class SPI:
     def __init__(self):
-        self.ADDR_ENC1 = rospy.get_param('/spi/enc1/address')
-        self.ADDR_ENC2 = rospy.get_param('/spi/enc2/address')
+        self.ADDR_ENC1 = rospy.get_param('spi/enc1/address')
+        self.ADDR_ENC2 = rospy.get_param('spi/enc2/address')
         
         rospy.init_node('spi', anonymous=True)
         rospy.on_shutdown(self.shutdown)
 
         # Check if encoders are conected and responding
         try:
-            self.enc1 = AMT20(self.ADDR_ENC1, rospy.get_param('/spi/enc1/direction'))
-            rospy.loginfo('Conected enc1 on address %s', str(self.ADDR_ENC1))
+            self.enc1 = AMT20(self.ADDR_ENC1, rospy.get_param('spi/enc1/direction'))
+            rospy.loginfo('Connected enc1 on address %s', str(self.ADDR_ENC1))
         except IOError:
             self.enc1 = None    # This is so shutdown() doesn't crash
             self.enc2 = None
             rospy.logerr("Can't open SPI device address %s", str(self.ADDR_ENC1))
             rospy.signal_shutdown("Can't open SPI device address " + str(self.ADDR_ENC1))
         try:
-            self.enc2 = AMT20(self.ADDR_ENC2, rospy.get_param('/spi/enc2/direction'))
-            rospy.loginfo('Conected enc2 on address %s', str(self.ADDR_ENC2))
+            self.enc2 = AMT20(self.ADDR_ENC2, rospy.get_param('spi/enc2/direction'))
+            rospy.loginfo('Connected enc2 on address %s', str(self.ADDR_ENC2))
         except IOError:
             self.enc1 = None    # This is so shutdown() doesn't crash
             self.enc2 = None
@@ -31,7 +31,7 @@ class SPI:
             rospy.signal_shutdown("Can't open SPI device address " + str(self.ADDR_ENC2))
 
     def run(self):
-        rate = rospy.Rate(rospy.get_param('/readings/sampling_frequency'))
+        rate = rospy.Rate(rospy.get_param('readings/sampling_frequency'))
         pub = rospy.Publisher('readings', reading, queue_size=10)
         rospy.loginfo('Publisher initialized correctly')
         data = reading()

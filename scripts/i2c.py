@@ -6,8 +6,8 @@ import smbus
 
 class I2C:
     def __init__(self):
-        self.ADDR_DIR = rospy.get_param('/i2c/address_direction')
-        self.ADDR_THROTTLE = rospy.get_param('/i2c/address_throttle')
+        self.ADDR_DIR = rospy.get_param('i2c/address_direction')
+        self.ADDR_THROTTLE = rospy.get_param('i2c/address_throttle')
 
         rospy.init_node('i2c', anonymous=True)
         rospy.Subscriber('actuation', actuation, self.callback)
@@ -16,20 +16,20 @@ class I2C:
         # Check if bus is respondig
         try:
             self.BUS.read_byte(self.ADDR_THROTTLE)
-            rospy.loginfo('Conected to throttle device on address %s', "0x{:02x}".format(self.ADDR_THROTTLE))
+            rospy.loginfo('Connected to throttle device on address %s', "0x{:02x}".format(self.ADDR_THROTTLE))
         except IOError:
             rospy.logerr("Can't open I2C device address %s", "0x{:02x}".format(self.ADDR_THROTTLE))
             rospy.signal_shutdown("Can't open I2C device address " + "0x{:02x}".format(self.ADDR_THROTTLE))
         try:
             self.BUS.read_byte(self.ADDR_DIR)
-            rospy.loginfo('Conected to direction device on address %s', "0x{:02x}".format(self.ADDR_DIR))
+            rospy.loginfo('Connected to direction device on address %s', "0x{:02x}".format(self.ADDR_DIR))
         except IOError:
             rospy.logerr("Can't open I2C device address %s", "0x{:02x}".format(self.ADDR_DIR))
             rospy.signal_shutdown("Can't open I2C device address " + "0x{:02x}".format(self.ADDR_DIR))
     
-    def signed_byte(self, x):
-        if (x >> 7):
-            return -(256 + (~x + 1))
+    def signed(self, x, n=8):
+        if (x >> (n-1)):
+            return -(2**n + (~x + 1))
         else:
             return x
 
@@ -55,14 +55,14 @@ class I2C:
             rospy.logerr("Can't send data to I2C device address %s", "0x{:02x}".format(self.ADDR_DIR))
 
     def run(self):
-        rate = rospy.Rate(rospy.get_param('/readings/sampling_frequency'))
+        rate = rospy.Rate(rospy.get_param('readings/sampling_frequency'))
         pub = rospy.Publisher('readings', reading, queue_size=10)
         rospy.loginfo('Publisher initialized correctly')
         data = reading()
 
         while not rospy.is_shutdown():
             try:
-                direction = self.signed_byte(self.BUS.read_byte(self.ADDR_DIR))
+                direction = self.signed(self.BUS.read_byte(self.ADDR_DIR))
                 data.dir = self.translate(direction, -127, 127, -135, 135)
                 pub.publish(data)
                 rate.sleep()
