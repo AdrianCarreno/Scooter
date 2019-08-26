@@ -7,7 +7,7 @@
     <param name="i2c/address_direction" value="17" />
     <param name="readings/sampling_frequency" value="1000" />
     <param name="actuation/write_frequency" value="10" />
-    <param name="radius" value="0.15" />
+    <param name="radius" value="0.095" />
 
     <node name="spi" pkg="scooter" type="spi.py" />
     <node name="i2c" pkg="scooter" type="i2c.py" />
