@@ -1,8 +1,9 @@
 <launch>
     <param name="spi/enc1/address" value="0" />
-    <param name="spi/enc1/direction" value="ccw" />
+    <param name="spi/enc1/direction" value="cw" />
     <param name="spi/enc2/address" value="1" />
-    <param name="spi/enc2/direction" value="cw" />
+    <param name="spi/enc2/direction" value="ccw" />
+    <param name="spi/left_enc" value="enc2" />
     <param name="i2c/address_throttle" value="16" />
     <param name="i2c/address_direction" value="17" />
     <param name="readings/sampling_frequency" value="1000" />

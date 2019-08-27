@@ -8,7 +8,8 @@ class SPI:
     def __init__(self):
         self.ADDR_ENC1 = rospy.get_param('spi/enc1/address')
         self.ADDR_ENC2 = rospy.get_param('spi/enc2/address')
-        
+        self.LEFT_ENC = rospy.get_param('spi/left_enc')
+
         rospy.init_node('spi', anonymous=True)
         rospy.on_shutdown(self.shutdown)
 
@@ -37,14 +38,24 @@ class SPI:
         data = reading()
 
         while not rospy.is_shutdown():
-            try:
-                data.w_left = self.enc1.angular_speed()
-            except IOError:
-                rospy.logerr("Can't read data from SPI device address %s", str(self.ADDR_ENC1))
-            try:
-                data.w_right = self.enc2.angular_speed()
-            except IOError:
-                rospy.logerr("Can't read data from SPI device address %s", str(self.ADDR_ENC2))
+            if self.LEFT_ENC == 'enc1':
+                try:
+                    data.w_left = self.enc1.angular_speed()
+                except IOError:
+                    rospy.logerr("Can't read data from SPI device address %s", str(self.ADDR_ENC1))
+                try:
+                    data.w_right = self.enc2.angular_speed()
+                except IOError:
+                    rospy.logerr("Can't read data from SPI device address %s", str(self.ADDR_ENC2))
+            else:
+                try:
+                    data.w_right = self.enc1.angular_speed()
+                except IOError:
+                    rospy.logerr("Can't read data from SPI device address %s", str(self.ADDR_ENC1))
+                try:
+                    data.w_left = self.enc2.angular_speed()
+                except IOError:
+                    rospy.logerr("Can't read data from SPI device address %s", str(self.ADDR_ENC2))
 
             pub.publish(data)
             rate.sleep()
