@@ -6,7 +6,7 @@
     <param name="spi/left_enc" value="enc2" />
     <param name="i2c/address_throttle" value="16" />
     <param name="i2c/address_direction" value="17" />
-    <param name="readings/sampling_frequency" value="1000" />
+    <param name="readings/sampling_frequency" value="120" />
     <param name="actuation/write_frequency" value="10" />
     <param name="radius" value="0.095" />
 
