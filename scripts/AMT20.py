@@ -6,8 +6,8 @@ from datetime import datetime
 
 class AMT20():
     def __init__(self, address, direction, bitrate=976000):
-        assert address == 0 or address == 1, 'SPI address must be 0 or 1'
-        assert direction == 'ccw' or direction == 'cw', 'Direction must be either "ccw" or "cw"'
+        assert address == 0 or address == 1, "SPI address must be 0 or 1"
+        assert direction == "ccw" or direction == "cw", "Direction must be either 'ccw' or 'cw'"
         self._NOP_A5 = 0x00
         self._RD_POS = 0x10
         self._SET_ZERO_POINT = 0x70
@@ -19,15 +19,15 @@ class AMT20():
         self.encoder.max_speed_hz = bitrate
 
         self.last = {
-            'angle': self.angle(),
-            'time': datetime.now()
+            "angle": self.angle(),
+            "time": datetime.now()
         }
 
     # This command causes a read of the current position.
     def read_position(self):
         resp = self.encoder.xfer([self._RD_POS], 0, 20)[0]
         if resp == 0:
-            raise IOError('Remote I/O error')
+            raise IOError("Remote I/O error")
 
         while resp != self._RD_POS:
             resp = self.encoder.xfer([self._NOP_A5], 0, 20)[0]
@@ -37,7 +37,7 @@ class AMT20():
 
         position = (MSB << 8) | LSB
 
-        if self.direction == 'ccw':
+        if self.direction == "ccw":
             return position
         else:
             return self.RESOLUTION - position
@@ -46,7 +46,7 @@ class AMT20():
     def set_zero(self):
         resp = self.encoder.xfer([self._SET_ZERO_POINT], 0, 20)[0]
         if resp == 0:
-            raise IOError('Remote I/O error')
+            raise IOError("Remote I/O error")
 
         while resp != 0x80:
             resp = self.encoder.xfer([self._NOP_A5], 0, 20)[0]
@@ -68,11 +68,11 @@ class AMT20():
         angle = self.angle()
         time =  datetime.now()
         # Get angle and time differences
-        dTheta = angle - self.last['angle']
-        dTime = time - self.last['time']
+        dTheta = angle - self.last["angle"]
+        dTime = time - self.last["time"]
         # Update angle and time for future calls
-        self.last['angle'] = angle
-        self.last['time'] = time
+        self.last["angle"] = angle
+        self.last["time"] = time
 
         # When the encoder crosses zero, the difference will spike, 
         # unless we add (or substract) 2pi

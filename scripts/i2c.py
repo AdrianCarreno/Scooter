@@ -14,26 +14,28 @@ class I2C:
         rospy.Subscriber("actuation", actuation, self.callback)
         self.BUS = smbus.SMBus(1)
         self._bus_in_use = False
+        self._init_errors = []
 
         # Check if bus is respondig
         try:
             self.BUS.write_byte(self.ADDR_THROTTLE, 0)
             rospy.loginfo(
-                "Connected to throttle device on address %s", "0x{:02x}".format(self.ADDR_THROTTLE))
+                "Connected to throttle device on address %s", hex(self.ADDR_THROTTLE))
         except IOError:
-            rospy.logerr(
-                "Can't open I2C device address %s", "0x{:02x}".format(self.ADDR_THROTTLE))
-            rospy.signal_shutdown(
-                "Can't open I2C device address " + "0x{:02x}".format(self.ADDR_THROTTLE))
+            self._init_errors.append(self.ADDR_THROTTLE)
         try:
-            self.BUS.read_byte(self.ADDR_DIR)
+            self.BUS.write_byte(self.ADDR_DIR, 0)
             rospy.loginfo(
-                "Connected to direction device on address %s", "0x{:02x}".format(self.ADDR_DIR))
+                "Connected to direction device on address %s", hex(self.ADDR_DIR))
         except IOError:
-            rospy.logerr(
-                "Can't open I2C device address %s", "0x{:02x}".format(self.ADDR_DIR))
+            self._init_errors.append(self.ADDR_DIR)
+
+        if not len(self._init_errors):
+            for i in self._init_errors:
+                rospy.logerr(
+                    "Can't open I2C device address %s", hex(i))
             rospy.signal_shutdown(
-                "Can't open I2C device address " + "0x{:02x}".format(self.ADDR_DIR))
+                "Failed to initiate communications with some I2C devices")
 
     def signed(self, x, n=8):
         if (x >> (n-1)):
@@ -43,11 +45,11 @@ class I2C:
 
     def translate(self, value, in_min, in_max, out_min, out_max):
         # Figure out how 'wide' each range is
-        left_span = in_max - in_min
-        right_span = out_max - out_min
+        left_span=in_max - in_min
+        right_span=out_max - out_min
 
         # Convert the left range into a 0-1 range (float)
-        value_scaled = float(value - in_min) / float(left_span)
+        value_scaled=float(value - in_min) / float(left_span)
 
         # Convert the 0-1 range into a value in the right range.
         return out_min + (value_scaled * right_span)
@@ -56,44 +58,48 @@ class I2C:
         while self._bus_in_use:
             pass    # Wait for BUS to be available
 
-        self._bus_in_use = True     # Mark BUS as in use
+        self._bus_in_use=True     # Mark BUS as in use
 
         try:
             self.BUS.write_byte(self.ADDR_THROTTLE, dataIn.throttle)
         except IOError:
             rospy.logerr(
-                "Can't send data to I2C device address %s", "0x{:02x}".format(self.ADDR_THROTTLE))
+                "Can't send data to I2C device address %s", hex(self.ADDR_THROTTLE))
         try:
             self.BUS.write_byte(self.ADDR_DIR, dataIn.direction)
         except IOError:
             rospy.logerr(
-                "Can't send data to I2C device address %s", "0x{:02x}".format(self.ADDR_DIR))
-        self._bus_in_use = False    # Mark BUS as available
+                "Can't send data to I2C device address %s", hex(self.ADDR_DIR))
+
+        self._bus_in_use=False    # Mark BUS as available
 
     def run(self):
-        rate = rospy.Rate(rospy.get_param("readings/sampling_frequency"))
-        pub = rospy.Publisher("readings", reading, queue_size=10)
+        rate=rospy.Rate(rospy.get_param("readings/sampling_frequency"))
+        pub=rospy.Publisher("readings", reading, queue_size=10)
         rospy.loginfo("Publisher initialized correctly")
-        data = reading()
+        data=reading()
 
         while not rospy.is_shutdown():
+            while self._bus_in_use:
+                pass    # Wait for BUS to be available
+
+            self._bus_in_use=True     # Mark BUS as in use
+
             try:
-                while self._bus_in_use:
-                    pass    # Wait for BUS to be available
-                self._bus_in_use = True     # Mark BUS as in use
-                direction = self.signed(self.BUS.read_byte(self.ADDR_DIR))
-                self._bus_in_use = False    # Mark BUS as available
-                data.dir = self.translate(direction, -127, 127, -135, 135)
-                pub.publish(data)
-                rate.sleep()
+                direction=self.signed(self.BUS.read_byte(self.ADDR_DIR))
             except IOError:
                 rospy.logerr(
-                    "Can't read data from I2C device address %s", "0x{:02x}".format(self.ADDR_DIR))
+                    "Can't read data from I2C device address %s", hex(self.ADDR_DIR))
+
+            self._bus_in_use=False    # Mark BUS as available
+            data.dir=self.translate(direction, -127, 127, -135, 135)
+            pub.publish(data)
+            rate.sleep()
 
 
 if __name__ == "__main__":
     try:
-        i2c_node = I2C()
+        i2c_node=I2C()
         i2c_node.run()
     except rospy.ROSInterruptException:
         pass
