@@ -30,7 +30,7 @@ class I2C:
         except IOError:
             self._init_errors.append(self.ADDR_DIR)
 
-        if not len(self._init_errors):
+        if len(self._init_errors) != 0:
             for i in self._init_errors:
                 rospy.logerr(
                     "Can't open I2C device address %s", hex(i))

@@ -27,7 +27,7 @@ class SPI:
         except IOError:
             self._init_errors.append(self.ADDR_ENC2)
 
-        if not len(self._init_errors):
+        if len(self._init_errors) != 0:
             for i in self._init_errors:
                 rospy.logerr("Can't open SPI device address %s", str(i))
             self.enc1 = None    # This is so shutdown() doesn"t crash
