@@ -51,7 +51,8 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   actuation.msg
-  reading.msg
+  speeds.msg
+  angle.msg
 )
 
 ## Generate services in the 'srv' folder

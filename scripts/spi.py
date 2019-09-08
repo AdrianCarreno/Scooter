@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import rospy
-from scooter.msg import reading
+from scooter.msg import speeds
 from AMT20 import AMT20
 
 
@@ -36,9 +36,9 @@ class SPI:
 
     def run(self):
         rate = rospy.Rate(rospy.get_param("readings/sampling_frequency"))
-        pub = rospy.Publisher("readings", reading, queue_size=10)
+        pub = rospy.Publisher("speeds", speeds, queue_size=10)
         rospy.loginfo("Publisher initialized correctly")
-        data = reading()
+        data = speeds()
 
         while not rospy.is_shutdown():
             try:

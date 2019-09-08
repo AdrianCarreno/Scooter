@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
-from scooter.msg import actuation, reading
+from scooter.msg import actuation, angle
 import smbus
 
 
@@ -75,9 +75,9 @@ class I2C:
 
     def run(self):
         rate=rospy.Rate(rospy.get_param("readings/sampling_frequency"))
-        pub=rospy.Publisher("readings", reading, queue_size=10)
+        pub=rospy.Publisher("angle", angle, queue_size=10)
         rospy.loginfo("Publisher initialized correctly")
-        data=reading()
+        data=angle()
 
         while not rospy.is_shutdown():
             while self._bus_in_use:
@@ -92,7 +92,7 @@ class I2C:
                     "Can't read data from I2C device address %s", hex(self.ADDR_DIR))
 
             self._bus_in_use=False    # Mark BUS as available
-            data.dir=self.translate(direction, -127, 127, -135, 135)
+            data.angle=self.translate(direction, -127, 127, -135, 135)
             pub.publish(data)
             rate.sleep()
 
