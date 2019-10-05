@@ -9,6 +9,7 @@
     <param name="readings/sampling_frequency" value="120" />
     <param name="actuation/write_frequency" value="10" />
     <param name="radius" value="0.095" />
+    <param name="max_speed" value="7" />
 
     <node name="spi" pkg="scooter" type="spi.py" />
     <node name="i2c" pkg="scooter" type="i2c.py" />

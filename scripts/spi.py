@@ -13,16 +13,22 @@ class SPI:
         self._init_errors = []
         rospy.init_node("spi", anonymous=True)
         rospy.on_shutdown(self.shutdown)
+        max_speed = rospy.get_param("max_speed")
+        radius = rospy.get_param("radius")
+        sampling_frequency = rospy.get_param("readings/sampling_frequency")
+        theta_max = max_speed / (3.6 * radius * sampling_frequency)
 
-        # Check if encoders are conected and responding
+        # Check if encoders are connected and responding
         try:
-            self.enc1 = AMT20(self.ADDR_ENC1, rospy.get_param("spi/enc1/direction"))
+            self.enc1 = AMT20(
+                self.ADDR_ENC1, rospy.get_param("spi/enc1/direction"), theta_max = theta_max)
             rospy.loginfo("Connected enc1 on address %s", str(self.ADDR_ENC1))
         except IOError:
             self._init_errors.append(self.ADDR_ENC1)
 
         try:
-            self.enc2 = AMT20(self.ADDR_ENC2, rospy.get_param("spi/enc2/direction"))
+            self.enc2 = AMT20(
+                self.ADDR_ENC2, rospy.get_param("spi/enc2/direction"), theta_max = theta_max)
             rospy.loginfo("Connected enc2 on address %s", str(self.ADDR_ENC2))
         except IOError:
             self._init_errors.append(self.ADDR_ENC2)
