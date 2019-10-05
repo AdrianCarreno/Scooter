@@ -102,9 +102,9 @@ class AMT20():
 
         # When the encoder crosses zero, the difference will spike,
         # unless we add (or substract) 2pi
-        if dTheta > self.theta_max * self.RESOLUTION:
+        if dTheta > self.theta_max:
             dTheta -= 2 * pi
-        elif dTheta < -self.theta_max * self.RESOLUTION:
+        elif dTheta < -self.theta_max:
             dTheta += 2 * pi
         # Convert timedelta object to float (seconds)
         dt = dTime.seconds + dTime.microseconds * 1E-6
