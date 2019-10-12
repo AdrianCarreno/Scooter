@@ -11,6 +11,6 @@
     <param name="radius" value="0.095" />
     <param name="max_speed" value="7" />
 
-    <node name="spi" pkg="scooter" type="spi.py" />
-    <node name="i2c" pkg="scooter" type="i2c.py" />
+    <node name="spi" pkg="scooter" type="spi.py" required="true" />
+    <node name="i2c" pkg="scooter" type="i2c.py" required="true" />
 </launch>
