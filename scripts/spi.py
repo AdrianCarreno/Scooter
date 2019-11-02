@@ -51,10 +51,12 @@ class SPI:
                 enc1_data = self.enc1.angular_speed()
             except IOError:
                 rospy.logerr("Can't read data from SPI device address %s", str(self.ADDR_ENC1))
+                continue
             try:
                 enc2_data = self.enc2.angular_speed()
             except IOError:
                 rospy.logerr("Can't read data from SPI device address %s", str(self.ADDR_ENC2))
+                continue
 
             if self.LEFT_ENC == "enc1":
                 data.w_left = enc1_data

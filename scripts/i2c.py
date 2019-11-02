@@ -90,6 +90,7 @@ class I2C:
             except IOError:
                 rospy.logerr(
                     "Can't read data from I2C device address %s", hex(self.ADDR_DIR))
+                continue
 
             self._bus_in_use=False    # Mark BUS as available
             data.angle=self.translate(direction, -127, 127, -135, 135)
