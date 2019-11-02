@@ -16,11 +16,14 @@ class AMT20():
         Initialize and open an SPI connection with a CUI AMT20 encoder.
         :param bus: SPI address in the bus (e.g. 0 or 1).
         :type bus: int
-        :param direction: Direction of rotation of the encoder, must be either 'ccw' or 'cw'.
+        :param direction: Direction of rotation of the encoder, must be either
+            'ccw' or 'cw'.
         :type direction: string
-        :param bitrate: Frequency of the SPI bus. The encoder defaults to 976[kHz].
+        :param bitrate: Frequency of the SPI bus. The encoder defaults to 
+            976[kHz].
         :type bitrate: int
-        :param bitrate: Max angle variation between samples, in radians. Defaults to 0.15[rad/sample].
+        :param bitrate: Max angle variation between samples, in radians. 
+            Defaults to 0.15[rad/sample].
         :type bitrate: float
         """
         assert address == 0 or address == 1, "SPI address must be 0 or 1"
@@ -33,10 +36,23 @@ class AMT20():
         self.encoder.open(0, address)
         self.encoder.max_speed_hz = bitrate
 
+        self._warm_up()
         self.last = {
             "angle": self.angle(),
             "time": datetime.now()
         }
+
+    def _warm_up(self):
+        """
+        Send a RD_POS and enough NOP_A5 commands until the enoder starts
+            responding as expected.
+        """
+        resp = self.encoder.xfer([RD_POS], 0, 20)[0]
+
+        while resp != RD_POS:
+            resp = self.encoder.xfer([NOP_A5], 0, 20)[0]
+
+        return True
 
     def read_position(self):
         """
