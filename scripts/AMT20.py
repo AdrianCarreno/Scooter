@@ -47,9 +47,9 @@ class AMT20():
         Send a RD_POS and enough NOP_A5 commands until the enoder starts
             responding as expected.
         """
-        resp = self.encoder.xfer([RD_POS], 0, 20)[0]
+        resp = self.encoder.xfer([NOP_A5], 0, 20)[0]
 
-        while resp != RD_POS:
+        while resp != 0xA5:
             resp = self.encoder.xfer([NOP_A5], 0, 20)[0]
 
         return True
