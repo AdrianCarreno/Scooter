@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import rospy
-from scooter.msg import speeds
+from scooter.msg import odometry
 from AMT20 import AMT20
 
 
@@ -21,14 +21,14 @@ class SPI:
         # Check if encoders are connected and responding
         try:
             self.enc1 = AMT20(
-                self.ADDR_ENC1, rospy.get_param("spi/enc1/direction"), theta_max = theta_max)
+                self.ADDR_ENC1, rospy.get_param("spi/enc1/direction"), theta_max=theta_max)
             rospy.loginfo("Connected enc1 on address %s", str(self.ADDR_ENC1))
         except IOError:
             self._init_errors.append(self.ADDR_ENC1)
 
         try:
             self.enc2 = AMT20(
-                self.ADDR_ENC2, rospy.get_param("spi/enc2/direction"), theta_max = theta_max)
+                self.ADDR_ENC2, rospy.get_param("spi/enc2/direction"), theta_max=theta_max)
             rospy.loginfo("Connected enc2 on address %s", str(self.ADDR_ENC2))
         except IOError:
             self._init_errors.append(self.ADDR_ENC2)
@@ -38,32 +38,41 @@ class SPI:
                 rospy.logerr("Can't open SPI device address %s", str(i))
             self.enc1 = None    # This is so shutdown() doesn"t crash
             self.enc2 = None
-            rospy.signal_shutdown("Failed to initiate communications with some SPI devices")
+            rospy.signal_shutdown(
+                "Failed to initiate communications with some SPI devices")
 
     def run(self):
         rate = rospy.Rate(rospy.get_param("readings/sampling_frequency"))
-        pub = rospy.Publisher("speeds", speeds, queue_size=10)
+        pub = rospy.Publisher("odometry", odometry, queue_size=10)
         rospy.loginfo("Publisher initialized correctly")
-        data = speeds()
+        data = odometry()
 
         while not rospy.is_shutdown():
             try:
-                enc1_data = self.enc1.angular_speed()
+                angle1 = self.enc1.angle()
+                speed1 = self.enc1.angular_speed()
             except IOError:
-                rospy.logerr("Can't read data from SPI device address %s", str(self.ADDR_ENC1))
+                rospy.logerr(
+                    "Can't read data from SPI device address %s", str(self.ADDR_ENC1))
                 continue
             try:
-                enc2_data = self.enc2.angular_speed()
+                angle2 = self.enc2.angle()
+                speed2 = self.enc2.angular_speed()
             except IOError:
-                rospy.logerr("Can't read data from SPI device address %s", str(self.ADDR_ENC2))
+                rospy.logerr(
+                    "Can't read data from SPI device address %s", str(self.ADDR_ENC2))
                 continue
 
             if self.LEFT_ENC == "enc1":
-                data.w_left = enc1_data
-                data.w_right = enc2_data
+                data.theta_left = angle1
+                data.theta_right = angle2
+                data.w_left = speed1
+                data.w_right = speed2
             else:
-                data.w_right = enc1_data
-                data.w_left = enc2_data
+                data.theta_right = angle1
+                data.theta_left = angle2
+                data.w_right = speed1
+                data.w_left = speed2
 
             pub.publish(data)
             rate.sleep()
