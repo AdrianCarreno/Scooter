@@ -3,6 +3,7 @@
 import rospy
 from scooter.msg import actuation, angle
 import smbus
+import numpy as np
 
 
 class I2C:
@@ -93,7 +94,7 @@ class I2C:
                 continue
 
             self._bus_in_use=False    # Mark BUS as available
-            data.angle=self.translate(direction, -127, 127, -135, 135)
+            data.angle=self.translate(direction, -128, 127, -np.deg2rad(-150), np.deg2rad(150))
             pub.publish(data)
             rate.sleep()
 
