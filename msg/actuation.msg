@@ -1,2 +1,2 @@
 int8 throttle
-int8 direction
+float32 direction
