@@ -67,8 +67,8 @@ class I2C:
             rospy.logerr(
                 "Can't send data to I2C device address %s", hex(self.ADDR_THROTTLE))
         try:
-            direction = np.clip(self.translate(
-                dataIn.direction, np.deg2rad(-150), np.deg2rad(150), -128, 127), -128, 127)
+            direction = int(np.clip(self.translate(
+                dataIn.direction, -2.61799, 2.61799, -128, 127), -128, 127))
             self.BUS.write_byte(self.ADDR_DIR, direction)
         except IOError:
             rospy.logerr(
