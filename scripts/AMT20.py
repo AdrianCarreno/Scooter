@@ -22,9 +22,9 @@ class AMT20():
         :param bitrate: Frequency of the SPI bus. The encoder defaults to 
             976[kHz].
         :type bitrate: int
-        :param bitrate: Max angle variation between samples, in radians. 
+        :param theta_max: Max angle variation between samples, in radians. 
             Defaults to 0.15[rad/sample].
-        :type bitrate: float
+        :type theta_max: float
         """
         assert address == 0 or address == 1, "SPI address must be 0 or 1"
         assert direction == "ccw" or direction == "cw", "Direction must be either 'ccw' or 'cw'"
